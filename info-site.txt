@@ -1,0 +1,136 @@
+base de donnée MySQL :
+==============================================================
+CREATE DATABASE todo;
+
+USE todo;
+
+CREATE TABLE `users` (
+	`id` INT PRIMARY KEY AUTO_INCREMENT,
+	`username` VARCHAR(20) UNIQUE NOT NULL,
+	`password` VARCHAR(60) NOT NULL,
+	`salt` VARCHAR(22) NOT NULL
+);
+
+CREATE TABLE `tasks` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `id_user` INT NOT NULL,
+  `task` VARCHAR(25) NOT NULL,
+  `state` tinyint(1) NOT NULL,
+  `time_creation` datetime NOT NULL,
+  `time_start` datetime NOT NULL,  
+  `time_end` datetime NOT NULL
+);
+
+
+INSERT INTO `users` (`id`, `username`, `password`, `salt`) VALUES
+(1, 'Loic', '$2y$10$1ecc647f496f706d29f8fux56AgGfvk5x5vPNHec6hYd4PwGPUN6y', '1ecc647f496f706d29f8f9'),
+(5, 'toto', '$2y$10$759a8dd51b415d14e73c6O.EAiTqmwsGE/Z.AmMIF.C0X4gt0GukG', '759a8dd51b415d14e73c6c');
+
+==============================================================
+PHP : 
+
+Login test : loic
+mdp : 	     test
+
+pages : 
+
+head.php	=> entête HTML
+index.php	=> point d'entrée 1
+login.php	=> session_start() 
+menu.php	=> 
+todo.php	=> 
+connexion.php	=> 
+
+
+index -> Menu -> 
+
+
+
+LOGIN : 
+<?php 
+include 'session.php';
+ ?>
+<?php 
+include 'head.php';
+include 'menu.php';
+ ?>
+
+MENU : 
+<?php //include 'database.php'; ?>
+	<div id="menu">
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="?section=index">TodoList</a>
+				</div>
+				<?php 
+				if(isset($_SESSION["id"])){
+					echo '<ul class="nav navbar-nav">';
+						echo '<li class="active"><a href="#">A faire</a></li>';
+						echo '<li><a href="?section=startTask">Démarrer une tâche</a></li>';
+						echo '<li><a href="?section=taskInProgress">Tâches en cours</a></li>';
+						echo '<li><a href="?section=endTask">Tâches terminées</a></li>';
+						echo '<li><a href="?section=addTask">Ajouter une tâche</a></li>';
+					echo '</ul>';
+					echo '<ul class="nav navbar-nav navbar-right">';
+						echo '<li id="welcome">';
+						//permet d'afficher le nom de la personne qui s'est connectée
+						$co = getConnection($connection);
+						$sqlSelectName = 'SELECT username FROM users WHERE id = ' . $_SESSION['id'];
+						$nom = $co->query($sqlSelectName)->fetch();
+						echo "Bienvenue " . $nom["username"] . " ! </li>";
+						/*echo "Bienvenue! </li>";*/
+						echo '<li><a href="?section=logout">Déconnexion</a></li>';
+					echo '</ul>';
+
+
+					var_dump($nom["username"]);
+
+					
+				}else{
+					echo '<ul class="nav navbar-nav navbar-right">';
+						echo '<li><a href="?section=register">Nouvel utilisateur</a></li>';
+						echo '<li><a href="?section=login">Connexion</a></li>';
+					echo '</ul>';
+				}
+				?>
+			</div>
+		</nav>
+
+INDEX : 
+
+if (isset($_GET["section"])){
+	switch ($_GET["section"]) {
+		case 'todo':
+			include("todo.php");
+			break;
+		case 'starttask':
+			include("starttask.php");
+			break;
+		case 'taskinprogress':
+			include("taskinprogress.php");
+			break;
+		case 'endtask':
+			include("endtask.php");
+			break;
+		case 'addtask':
+			include("addtask.php");
+			break;
+		case 'logout':
+			include("logout.php");
+			break;
+		case 'login':
+			include("login.php");
+			break;
+		case 'index':
+			include("index.php");
+			break;
+		case 'register':
+			include("register.php");
+			break;
+		default:
+			include("notfound.php");
+			break;
+	}
+
+}
